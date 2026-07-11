@@ -125,6 +125,9 @@ func TargetsFromTargetAnnotation(annotations map[string]string) endpoint.Targets
 // HostnamesFromAnnotations extracts the hostnames from the given annotations map.
 // It returns a slice of hostnames if the HostnameKey annotation is present, otherwise it returns nil.
 func HostnamesFromAnnotations(input map[string]string) []string {
+	if _, ok := input[HostnameKey]; !ok && AnnotationKeyPrefix == DefaultAnnotationPrefix {
+		return extractHostnamesFromAnnotations(input, LegacyHostnameKey)
+	}
 	return extractHostnamesFromAnnotations(input, HostnameKey)
 }
 

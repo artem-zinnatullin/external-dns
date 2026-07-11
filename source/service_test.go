@@ -115,7 +115,7 @@ func TestServiceSourceLegacyCloudflareProxiedAnnotation(t *testing.T) {
 			Name:      "cloudflare-service",
 			Namespace: "default",
 			Annotations: map[string]string{
-				annotations.HostnameKey:                "app.example.org",
+				annotations.LegacyHostnameKey:          "app.example.org",
 				annotations.LegacyCloudflareProxiedKey: "true",
 			},
 		},

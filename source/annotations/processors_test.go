@@ -276,6 +276,21 @@ func TestHostnamesFromAnnotations(t *testing.T) {
 			},
 			expected: []string{"example.com", "example.org"},
 		},
+		{
+			name: "legacy alpha hostname annotation",
+			annotations: map[string]string{
+				LegacyHostnameKey: "legacy.example.com",
+			},
+			expected: []string{"legacy.example.com"},
+		},
+		{
+			name: "GA hostname annotation takes precedence over legacy alpha hostname annotation",
+			annotations: map[string]string{
+				HostnameKey:       "ga.example.com",
+				LegacyHostnameKey: "legacy.example.com",
+			},
+			expected: []string{"ga.example.com"},
+		},
 	}
 
 	for _, tt := range tests {
@@ -284,6 +299,15 @@ func TestHostnamesFromAnnotations(t *testing.T) {
 			assert.Equal(t, tt.expected, result)
 		})
 	}
+}
+
+func TestHostnamesFromAnnotationsDoesNotUseLegacyPrefixWithCustomPrefix(t *testing.T) {
+	t.Cleanup(func() { SetAnnotationPrefix(DefaultAnnotationPrefix) })
+	SetAnnotationPrefix("custom.io/")
+
+	assert.Nil(t, HostnamesFromAnnotations(map[string]string{
+		LegacyHostnameKey: "legacy.example.com",
+	}))
 }
 
 func TestSplitHostnameAnnotation(t *testing.T) {
