@@ -108,6 +108,39 @@ func TestServiceSource(t *testing.T) {
 	t.Run("MultipleServices", testMultipleServicesEndpoints)
 }
 
+func TestServiceSourceLegacyCloudflareProxiedAnnotation(t *testing.T) {
+	kubernetes := fake.NewClientset()
+	service := &v1.Service{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "cloudflare-service",
+			Namespace: "default",
+			Annotations: map[string]string{
+				annotations.HostnameKey:                "app.example.org",
+				annotations.LegacyCloudflareProxiedKey: "true",
+			},
+		},
+		Spec: v1.ServiceSpec{Type: v1.ServiceTypeLoadBalancer},
+		Status: v1.ServiceStatus{LoadBalancer: v1.LoadBalancerStatus{
+			Ingress: []v1.LoadBalancerIngress{{IP: "192.0.2.1"}},
+		}},
+	}
+	_, err := kubernetes.CoreV1().Services(service.Namespace).Create(t.Context(), service, metav1.CreateOptions{})
+	require.NoError(t, err)
+
+	src, err := NewServiceSource(t.Context(), kubernetes, &Config{
+		LabelFilter:    labels.Everything(),
+		TemplateEngine: templatetest.MustEngine(t, "", "", "", false),
+	})
+	require.NoError(t, err)
+
+	endpoints, err := src.Endpoints(t.Context())
+	require.NoError(t, err)
+	require.Len(t, endpoints, 1)
+	assert.Equal(t, endpoint.ProviderSpecific{
+		{Name: annotations.CloudflareProxiedKey, Value: "true"},
+	}, endpoints[0].ProviderSpecific)
+}
+
 // testServiceSourceImplementsSource tests that serviceSource is a valid Source.
 func testServiceSourceImplementsSource(t *testing.T) {
 	assert.Implements(t, (*Source)(nil), new(serviceSource))

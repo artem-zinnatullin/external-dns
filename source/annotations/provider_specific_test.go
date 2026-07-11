@@ -54,6 +54,16 @@ func TestProviderSpecificAnnotations(t *testing.T) {
 			setIdentifier: "",
 		},
 		{
+			name: "legacy alpha Cloudflare proxied annotation",
+			annotations: map[string]string{
+				LegacyCloudflareProxiedKey: "true",
+			},
+			expected: endpoint.ProviderSpecific{
+				{Name: CloudflareProxiedKey, Value: "true"},
+			},
+			setIdentifier: "",
+		},
+		{
 			name: "Cloudflare custom hostname annotation",
 			annotations: map[string]string{
 				CloudflareCustomHostnameKey: "custom.example.com",
@@ -139,6 +149,17 @@ func TestProviderSpecificAnnotations(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestProviderSpecificAnnotationsCloudflareProxiedPrecedence(t *testing.T) {
+	result, _ := ProviderSpecificAnnotations(map[string]string{
+		LegacyCloudflareProxiedKey: "true",
+		CloudflareProxiedKey:       "false",
+	})
+
+	assert.Equal(t, endpoint.ProviderSpecific{
+		{Name: CloudflareProxiedKey, Value: "false"},
+	}, result)
 }
 
 func TestGetProviderSpecificCloudflareAnnotations(t *testing.T) {

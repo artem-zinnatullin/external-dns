@@ -323,6 +323,27 @@ kubectl delete -f externaldns.yaml
 
 Using the `external-dns.kubernetes.io/cloudflare-proxied: "true"` annotation on your ingress, you can specify if the proxy feature of Cloudflare should be enabled for that record. This setting will override the global `--cloudflare-proxied` setting.
 
+## Setting cloudflare-proxied on a per-service basis
+
+Services can enable Cloudflare proxying without an Ingress by using the
+`external-dns.alpha.kubernetes.io/cloudflare-proxied: "true"` annotation:
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-service
+  annotations:
+    external-dns.kubernetes.io/hostname: app.example.com
+    external-dns.alpha.kubernetes.io/cloudflare-proxied: "true"
+spec:
+  type: LoadBalancer
+```
+
+This setting overrides the global `--cloudflare-proxied` setting for records generated from the Service.
+The current `external-dns.kubernetes.io/cloudflare-proxied` annotation is also supported and takes precedence
+if both annotations are present.
+
 ## Setting cloudflare regional services
 
 With Cloudflare regional services you can restrict which data centers can decrypt and serve HTTPS traffic.
