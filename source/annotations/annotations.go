@@ -31,7 +31,9 @@ var (
 	AnnotationKeyPrefix = DefaultAnnotationPrefix
 
 	// CloudflareProxiedKey The annotation used for determining if traffic will go through Cloudflare
-	CloudflareProxiedKey        = AnnotationKeyPrefix + "cloudflare-proxied"
+	CloudflareProxiedKey = AnnotationKeyPrefix + "cloudflare-proxied"
+	// LegacyCloudflareProxiedKey is the legacy alpha-prefix Cloudflare proxy annotation.
+	LegacyCloudflareProxiedKey  = "external-dns.alpha.kubernetes.io/cloudflare-proxied"
 	CloudflareCustomHostnameKey = AnnotationKeyPrefix + "cloudflare-custom-hostname"
 	CloudflareRegionKey         = AnnotationKeyPrefix + "cloudflare-region-key"
 	CloudflareRecordCommentKey  = AnnotationKeyPrefix + "cloudflare-record-comment"

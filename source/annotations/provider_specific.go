@@ -35,9 +35,24 @@ func ProviderSpecificAnnotations(annotations map[string]string) (endpoint.Provid
 			Value: v,
 		})
 	}
+	if v, ok := annotations[CloudflareProxiedKey]; ok {
+		providerSpecificAnnotations = append(providerSpecificAnnotations, endpoint.ProviderSpecificProperty{
+			Name:  CloudflareProxiedKey,
+			Value: v,
+		})
+	} else if AnnotationKeyPrefix == DefaultAnnotationPrefix {
+		if v, ok := annotations[LegacyCloudflareProxiedKey]; ok {
+			providerSpecificAnnotations = append(providerSpecificAnnotations, endpoint.ProviderSpecificProperty{
+				Name:  CloudflareProxiedKey,
+				Value: v,
+			})
+		}
+	}
 	setIdentifier := ""
 	for k, v := range annotations {
-		if k == SetIdentifierKey {
+		if k == CloudflareProxiedKey || k == LegacyCloudflareProxiedKey {
+			continue
+		} else if k == SetIdentifierKey {
 			setIdentifier = v
 		} else if attr, ok := strings.CutPrefix(k, AWSPrefix); ok {
 			providerSpecificAnnotations = append(providerSpecificAnnotations, endpoint.ProviderSpecificProperty{
@@ -75,11 +90,6 @@ func ProviderSpecificAnnotations(annotations map[string]string) (endpoint.Provid
 			case strings.Contains(k, CloudflareCustomHostnameKey):
 				providerSpecificAnnotations = append(providerSpecificAnnotations, endpoint.ProviderSpecificProperty{
 					Name:  CloudflareCustomHostnameKey,
-					Value: v,
-				})
-			case strings.Contains(k, CloudflareProxiedKey):
-				providerSpecificAnnotations = append(providerSpecificAnnotations, endpoint.ProviderSpecificProperty{
-					Name:  CloudflareProxiedKey,
 					Value: v,
 				})
 			case strings.Contains(k, CloudflareRegionKey):
